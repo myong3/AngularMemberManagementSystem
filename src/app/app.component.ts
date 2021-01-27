@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { appPath } from './app-path.const';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,5 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'MemberManagementSystem';
+  path = appPath;
 }

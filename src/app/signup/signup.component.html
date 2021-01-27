@@ -1,0 +1,78 @@
+<div class="container-fluid col-sm-10">
+  <form #f="ngForm" #form>
+    <div class="row mt-5">
+      <div class="col-2">
+        <strong>註冊帳號</strong>
+      </div>
+      <div class="col-3">
+        <input
+          type="text"
+          class="form-control"
+          aria-label="Sizing example input"
+          aria-describedby="inputGroup-sizing-sm"
+          required
+          id="account"
+          name="account"
+          placeholder="請輸入帳號"
+          [(ngModel)]="account"
+          (blur)="checkAccount()"
+          onfocus="this.select()"
+        />
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-2">
+        <strong>註冊密碼</strong>
+      </div>
+      <div class="col-3">
+        <input
+          type="password"
+          class="form-control"
+          required
+          aria-label="Sizing example input"
+          aria-describedby="inputGroup-sizing-sm"
+          id="password"
+          name="password"
+          placeholder="請輸入密碼"
+          [(ngModel)]="password"
+          onfocus="this.select()"
+        />
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-2">
+        <strong>確認密碼</strong>
+      </div>
+      <div class="col-3">
+        <input
+          type="password"
+          class="form-control"
+          required
+          aria-label="Sizing example input"
+          aria-describedby="inputGroup-sizing-sm"
+          id="checkpassword"
+          name="checkpassword"
+          placeholder="再輸入一次密碼"
+          [(ngModel)]="checkpassword"
+          (blur)="checkPassword()"
+          onfocus="this.select()"
+        />
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-2"></div>
+      <div class="col-1">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          (click)="signupFunction()"
+        >
+          註冊
+        </button>
+      </div>
+      <div class="col-auto">
+        <strong style="color: red">{{ message }}</strong>
+      </div>
+    </div>
+  </form>
+</div>

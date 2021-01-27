@@ -144,6 +144,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "MemberManagementSystem"
+    }
+  },
+  "defaultProject": "MemberManagementSystem",
+  "cli": {
+    "analytics": false
+  }
 }
