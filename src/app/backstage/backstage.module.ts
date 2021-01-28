@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BackstageRoutingModule } from './backstage-routing.module';
 import { BackstageComponent } from './backstage.component';
 
@@ -9,7 +9,8 @@ import { BackstageComponent } from './backstage.component';
   declarations: [BackstageComponent],
   imports: [
     CommonModule,
-    BackstageRoutingModule
+    BackstageRoutingModule,
+    ReactiveFormsModule
   ]
 })
 export class BackstageModule { }

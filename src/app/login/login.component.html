@@ -1,5 +1,5 @@
 <div class="container-fluid col-sm-10">
-  <form #form="ngForm">
+  <form #f="ngForm" #form>
     <div class="row mt-5">
       <div class="col-1">
         <strong>帳號</strong>
@@ -59,19 +59,18 @@
         >
       </div>
     </div>
+    <div class="row mt-2">
+      <div class="col-1">
+      </div>
+
+      <div class="col-1">
+        <button type="password" class="btn btn-primary" (click)="loginFunction()">
+          登入
+        </button>
+      </div>
+      <div class="col-2">
+        <a class="nav-link" [routerLink]="['..', path.signup]">註冊帳號</a>
+      </div>
+    </div>
   </form>
-
-  <div class="row mt-2">
-    <div class="col-1">
-    </div>
-
-    <div class="col-1">
-      <button type="password" class="btn btn-primary" (click)="loginFunction()">
-        登入
-      </button>
-    </div>
-    <div class="col-2">
-      <a class="nav-link" [routerLink]="['..', path.signup]">註冊帳號</a>
-    </div>
-  </div>
 </div>

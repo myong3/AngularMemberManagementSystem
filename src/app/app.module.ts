@@ -12,11 +12,9 @@ import { AlertModule } from './_alert';
   ],
   imports: [
     BrowserModule,
-    // AppRoutingModule,
     HttpClientModule,
     AlertModule,
-    AppRoutingModule,
-
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]

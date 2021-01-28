@@ -87,12 +87,12 @@ export class SignupComponent implements OnInit {
     }
 
     const salt = this.createSalt();
-    const saltPassword = salt + this.password;
-    const passwordMd5 = Md5.hashStr(saltPassword).toString();
+    const PasswordWithSalt = salt + this.password;
+    const passwordMd5 = Md5.hashStr(PasswordWithSalt).toString();
     console.log('account', this.account);
     console.log('password', this.password);
     console.log('salt', salt);
-    console.log('saltPassword', saltPassword);
+    console.log('PasswordWithSalt', PasswordWithSalt);
     console.log('passwordMd5', passwordMd5);
 
     const url = this.baseUrl + 'api/signup/signup';
