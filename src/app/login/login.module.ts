@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 
 import { LoginRoutingModule } from './login-routing.module';
 import { LoginComponent } from './login.component';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { FocusInvalidInputDirective } from './focusInvalidInput.directive';
 
 @NgModule({
-  declarations: [LoginComponent],
-  imports: [CommonModule, LoginRoutingModule, FormsModule],
+  declarations: [LoginComponent, FocusInvalidInputDirective],
+  imports: [CommonModule, LoginRoutingModule, ReactiveFormsModule],
 })
 export class LoginModule {}

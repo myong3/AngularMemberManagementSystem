@@ -1,5 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-backstage',
@@ -7,28 +11,53 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./backstage.component.css'],
 })
 export class BackstageComponent implements OnInit {
-  powers = ['Really Smart', 'Super Flexible', 'Weather Changer'];
-  hero = { name: 'Dr.', alterEgo: 'Dr. What', power: this.powers[0] };
-  heroForm: FormGroup;
+  // baseData = { account: '', password: '' };
+  isChecked = false;
+  Form: FormGroup;
 
-  constructor() {}
+  @ViewChild('form') formElementRef: ElementRef;
+
+  constructor(private formBuilder: FormBuilder) {}
 
   ngOnInit(): void {
-    this.heroForm = new FormGroup({
-      name: new FormControl(this.hero.name, [
-        Validators.required,
-        Validators.minLength(4)
-      ]),
-      alterEgo: new FormControl(this.hero.alterEgo),
-      power: new FormControl(this.hero.power, Validators.required),
+    // this.Form = new FormGroup({
+    //   account: new FormControl(this.baseData.account, [
+    //     Validators.required,
+    //     Validators.minLength(4),
+    //   ]),
+    //   password: new FormControl(this.baseData.password, [Validators.required]),
+    // });
+
+    this.Form = this.formBuilder.group({
+      account: ['', [Validators.required, Validators.minLength(4)]],
+      password: ['', Validators.required],
     });
   }
 
-  get name() {
-    return this.heroForm.get('name');
+  get account() {
+    return this.Form.get('account');
   }
 
-  get power() {
-    return this.heroForm.get('power');
+  get password() {
+    return this.Form.get('password');
+  }
+
+
+  click() {
+    console.log('this.Form.valid', this.Form.valid);
+    console.log('get account', this.Form.get('account').value);
+    console.log('get password', this.Form.get('password').value);
+
+    if (!this.Form.valid) {
+      this.setFocus('password');
+      return;
+    }
+  }
+
+  setFocus(name) {
+    const ele = this.formElementRef.nativeElement[name];
+    if (ele) {
+      ele.focus();
+    }
   }
 }

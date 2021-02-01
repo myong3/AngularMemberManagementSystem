@@ -1,92 +1,93 @@
 <div class="container">
-  <h1>Reactive Form</h1>
+  <h1>登入</h1>
+  <h2>使用您的帳戶</h2>
 
-  <form [formGroup]="heroForm" #formDir="ngForm">
-    <div [hidden]="formDir.submitted">
+  <form [formGroup]="Form" #NgForm="ngForm" #form>
+    <div>
       <div
         class="cross-validation"
         [class.cross-validation-error]="
-          heroForm.errors?.identityRevealed &&
-          (heroForm.touched || heroForm.dirty)
+          Form.errors?.identityRevealed && (Form.touched || Form.dirty)
         "
       >
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input
-            id="name"
-            class="form-control"
-            formControlName="name"
-            required
-          />
+        <div class="row">
+          <div class="col-4"></div>
 
-          <div
-            *ngIf="name.invalid && (name.dirty || name.touched)"
-            class="alert alert-danger"
-          >
-            <div *ngIf="name.errors.required">Name is required.</div>
-            <div *ngIf="name.errors.minlength">
-              Name must be at least 4 characters long.
+          <div class="col-1">
+            <strong>帳號</strong>
+          </div>
+          <div class="col-auto">
+            <input
+              id="account"
+              type="text"
+              class="form-control"
+              formControlName="account"
+              placeholder="請輸入帳號"
+              onfocus="this.select()"
+              required
+            />
+
+            <div
+              *ngIf="account.invalid && (account.dirty || account.touched)"
+              class="alert alert-danger"
+            >
+              <div *ngIf="account.errors.required">Account is required.</div>
+              <div *ngIf="account.errors.minlength">
+                Account must be at least 4 characters long.
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="alterEgo">Alter Ego</label>
-          <input
-            id="alterEgo"
-            class="form-control"
-            formControlName="alterEgo"
-          />
-        </div>
-
-        <div
-          *ngIf="
-            heroForm.errors?.identityRevealed &&
-            (heroForm.touched || heroForm.dirty)
-          "
-          class="cross-validation-error-message alert alert-danger"
-        >
-          Name cannot match alter ego.
+        <div class="row mt-2">
+          <div class="col-4"></div>
+          <div class="col-1">
+            <strong>密碼</strong>
+          </div>
+          <div class="col-auto">
+            <input
+              id="password"
+              type="password"
+              class="form-control"
+              formControlName="password"
+              placeholder="請輸入密碼"
+              onfocus="this.select()"
+              *ngIf="isChecked === false"
+              required
+            />
+            <input
+              id="password"
+              type="text"
+              class="form-control"
+              formControlName="password"
+              placeholder="請輸入密碼"
+              onfocus="this.select()"
+              *ngIf="isChecked === true"
+              required
+            />
+          </div>
+          <div class="col-auto mt-2">
+            <label
+              ><input
+                class="form-check-input"
+                type="checkbox"
+                id="show_password"
+                (change)="this.isChecked = !this.isChecked"
+              />顯示密碼</label
+            >
+          </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="power">Hero Power</label>
-        <select
-          id="power"
-          class="form-control"
-          formControlName="power"
-          required
-        >
-          <option *ngFor="let p of powers" [value]="p">{{ p }}</option>
-        </select>
-
-        <div *ngIf="power.invalid && power.touched" class="alert alert-danger">
-          <div *ngIf="power.errors.required">Power is required.</div>
+      <div class="row mt-3">
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary" (click)="click()">
+            Submit
+          </button>
         </div>
       </div>
-
-      <button
-        type="submit"
-        class="btn btn-default"
-        [disabled]="heroForm.invalid"
-      >
-        Submit
-      </button>
-      <button
-        type="button"
-        class="btn btn-default"
-        (click)="formDir.resetForm({})"
-      >
-        Reset
-      </button>
     </div>
   </form>
-
-  <div class="submitted-message" *ngIf="formDir.submitted">
-    <p>You've submitted your hero, {{ heroForm.value.name }}!</p>
-    <button (click)="formDir.resetForm({})">Add new hero</button>
-  </div>
 </div>
 
 <!--

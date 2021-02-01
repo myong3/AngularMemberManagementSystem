@@ -3,7 +3,7 @@ import { Md5 } from 'ts-md5';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { checkAccountModel, signUpModel } from './signup.component.models';
 import { Ids } from './signup.component.ids';
-import { NgForm } from '@angular/forms';
+import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { appPath } from '../app-path.const';
 import { AlertService } from '../_alert';
 import { Router } from '@angular/router';
@@ -15,42 +15,52 @@ import { Router } from '@angular/router';
 })
 export class SignupComponent implements OnInit {
   path = appPath;
-  account = '';
-  password = '';
-  checkpassword = '';
-  message = '';
   baseUrl = 'https://localhost:44329/';
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
     }),
   };
+  Form: FormGroup;
 
   @ViewChild('form') formElementRef: ElementRef;
-  @ViewChild('f') f: NgForm;
 
   constructor(
     private http: HttpClient,
     private alertService: AlertService,
-    private router: Router
+    private router: Router,
+    private formBuilder: FormBuilder
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.Form = this.formBuilder.group({
+      account: ['', [Validators.required, Validators.minLength(4)]],
+      password: ['', Validators.required],
+      checkpassword: ['', Validators.required],
+    });
+  }
 
   checkAccount() {
-    if (this.getValue(Ids.account).trim() === '') {
+    if (this.Form.get(Ids.account).value.trim() === '') {
+      this.setFocus(Ids.account);
+      return;
+    } else if (!this.Form.get(Ids.account).valid) {
+      console.log('this.Form.get(Ids.account).valid');
+      this.setFocus(Ids.account);
       return;
     }
     const url = this.baseUrl + 'api/signup/checkaccount';
-    const postData = new checkAccountModel(this.getValue(Ids.account));
+    const postData = new checkAccountModel(this.Form.get(Ids.account).value.trim());
 
     this.http.post<boolean>(url, postData, this.httpOptions).subscribe(
       (result) => {
         if (result) {
           this.setFocus(Ids.account);
-          this.message = '此帳號已被註冊，請使用其他帳號';
-        } else {
-          this.message = '';
+          const options = {
+            autoClose: true,
+            keepAfterRouteChange: true,
+          };
+          this.alertService.error('此帳號已被註冊，請使用其他帳號', options);
         }
       },
       (error) => console.error(error)
@@ -59,45 +69,31 @@ export class SignupComponent implements OnInit {
   }
 
   checkPassword() {
-    if (this.getValue(Ids.password) !== this.getValue(Ids.checkpassword)) {
+    if (
+      this.Form.get(Ids.password).value !==
+      this.Form.get(Ids.checkpassword).value
+    ) {
       this.setFocus(Ids.checkpassword);
-      this.message = '您輸入的兩個密碼並不相符，請再試一次';
-    } else {
-      this.message = '';
+      const options = {
+        autoClose: true,
+        keepAfterRouteChange: true,
+      };
+      this.alertService.error('您輸入的兩個密碼並不相符，請再試一次', options);
     }
   }
 
   signupFunction() {
-    if (this.getValue(Ids.account).trim() === '') {
-      this.message = '請輸入帳號';
-      this.setFocus(Ids.account);
-
-      return;
-    } else if (this.getValue(Ids.password).trim() === '') {
-      this.message = '請輸入註冊密碼';
-      this.setFocus(Ids.password);
-
-      return;
-    }
-    if (this.getValue(Ids.checkpassword).trim() === '') {
-      this.message = '請輸入第二次註冊密碼';
-      this.setFocus(Ids.checkpassword);
-
+    if (!this.Form.valid) {
       return;
     }
 
     const salt = this.createSalt();
-    const PasswordWithSalt = salt + this.password;
+    const PasswordWithSalt = salt + this.Form.get(Ids.password).value.trim();
     const passwordMd5 = Md5.hashStr(PasswordWithSalt).toString();
-    console.log('account', this.account);
-    console.log('password', this.password);
-    console.log('salt', salt);
-    console.log('PasswordWithSalt', PasswordWithSalt);
-    console.log('passwordMd5', passwordMd5);
 
     const url = this.baseUrl + 'api/signup/signup';
     const postData = new signUpModel();
-    postData.userAccount = this.getValue(Ids.account);
+    postData.userAccount = this.Form.get(Ids.account).value.trim();
     postData.userPassword = passwordMd5;
     postData.userPasswordSalt = salt;
 
@@ -142,11 +138,15 @@ export class SignupComponent implements OnInit {
     }
   }
 
-  setValue(name, value) {
-    this.f.form.get(name).setValue(value);
+  get account() {
+    return this.Form.get('account');
   }
 
-  getValue(name) {
-    return this.f.form.get(name).value;
+  get password() {
+    return this.Form.get('password');
+  }
+
+  get checkpassword() {
+    return this.Form.get('checkpassword');
   }
 }

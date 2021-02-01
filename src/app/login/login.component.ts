@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { appPath } from '../app-path.const';
 import { Md5 } from 'ts-md5';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { NgForm } from '@angular/forms';
+import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { AlertService } from '../_alert';
 import { Router } from '@angular/router';
 import {
@@ -17,8 +17,7 @@ import { Ids } from '../signup/signup.component.ids';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
-  account = '';
-  password = '';
+  // baseData = { account: '', password: '' };
   path = appPath;
   isChecked = false;
   baseUrl = 'https://localhost:44329/';
@@ -27,21 +26,46 @@ export class LoginComponent implements OnInit {
       'Content-Type': 'application/json',
     }),
   };
+  Form: FormGroup;
 
   @ViewChild('form') formElementRef: ElementRef;
-  @ViewChild('f') f: NgForm;
 
   constructor(
     private http: HttpClient,
     private alertService: AlertService,
-    private router: Router
+    private router: Router,
+    private formBuilder: FormBuilder
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    // this.Form = new FormGroup({
+    //   account: new FormControl(this.baseData.account, [
+    //     Validators.required,
+    //     Validators.minLength(4),
+    //   ]),
+    //   password: new FormControl(this.baseData.password, [Validators.required]),
+    // });
+
+    this.Form = this.formBuilder.group({
+      account: ['', [Validators.required, Validators.minLength(4)]],
+      password: ['', Validators.required],
+    });
+  }
+
+  get account() {
+    return this.Form.get('account');
+  }
+
+  get password() {
+    return this.Form.get('password');
+  }
 
   loginFunction() {
+    if (!this.Form.valid) {
+      return;
+    }
     const url = this.baseUrl + 'api/login/GetPassword';
-    const postData = new GetPasswordModel(this.getValue(Ids.account));
+    const postData = new GetPasswordModel(this.Form.get(Ids.account).value);
 
     this.http
       .post<GetPasswordReturnModel>(url, postData, this.httpOptions)
@@ -71,7 +95,7 @@ export class LoginComponent implements OnInit {
   }
 
   comparePassword(model: GetPasswordReturnModel) {
-    const password = this.getValue(Ids.password);
+    const password = this.Form.get(Ids.password).value;
     const passwordWithSalt = model.userPasswordSalt + password;
     const passwordMd5 = Md5.hashStr(passwordWithSalt).toString();
 
@@ -99,13 +123,5 @@ export class LoginComponent implements OnInit {
     if (ele) {
       ele.focus();
     }
-  }
-
-  setValue(name, value) {
-    this.f.form.get(name).setValue(value);
-  }
-
-  getValue(name) {
-    return this.f.form.get(name).value;
   }
 }
