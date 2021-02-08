@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 export class AppComponent {
   title = 'MemberManagementSystem';
   path = appPath;
+  decodeToken : any;
   constructor(
     private alertService: AlertService,
     private jwtHelperService: JwtHelperService,
@@ -29,8 +30,8 @@ export class AppComponent {
     const token = sessionStorage.getItem('access_token');
 
     if (token !== undefined && token !== null) {
-      const decodeToken = this.jwtHelperService.decodeToken(token);
-      if ((decodeToken.exp as number) < Math.floor(Date.now() / 1000)) {
+      this.decodeToken = this.jwtHelperService.decodeToken(token);
+      if ((this.decodeToken.exp as number) < Math.floor(Date.now() / 1000)) {
         sessionStorage.removeItem('access_token');
         const options = {
           autoClose: true,
@@ -42,9 +43,9 @@ export class AppComponent {
         return false;
       }
 
-      if (decodeToken.roles === 'Admin') {
+      if (this.decodeToken.roles === 'Admin') {
         return true;
-      } else if (decodeToken.roles === 'User') {
+      } else if (this.decodeToken.roles === 'User') {
         return false;
       }
     } else {
