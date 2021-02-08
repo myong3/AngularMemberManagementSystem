@@ -1,5 +1,4 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { Md5 } from 'ts-md5';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { checkAccountModel, signUpModel } from './signup.component.models';
 import { Ids } from './signup.component.ids';
@@ -19,8 +18,11 @@ export class SignupComponent implements OnInit {
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
+
     }),
+    // observe: 'response' as 'response'
   };
+
   Form: FormGroup;
 
   @ViewChild('form') formElementRef: ElementRef;
@@ -45,12 +47,13 @@ export class SignupComponent implements OnInit {
       this.setFocus(Ids.account);
       return;
     } else if (!this.Form.get(Ids.account).valid) {
-      console.log('this.Form.get(Ids.account).valid');
       this.setFocus(Ids.account);
       return;
     }
     const url = this.baseUrl + 'api/signup/checkaccount';
-    const postData = new checkAccountModel(this.Form.get(Ids.account).value.trim());
+    const postData = new checkAccountModel(
+      this.Form.get(Ids.account).value.trim()
+    );
 
     this.http.post<boolean>(url, postData, this.httpOptions).subscribe(
       (result) => {
@@ -87,15 +90,10 @@ export class SignupComponent implements OnInit {
       return;
     }
 
-    const salt = this.createSalt();
-    const PasswordWithSalt = salt + this.Form.get(Ids.password).value.trim();
-    const passwordMd5 = Md5.hashStr(PasswordWithSalt).toString();
-
     const url = this.baseUrl + 'api/signup/signup';
     const postData = new signUpModel();
     postData.userAccount = this.Form.get(Ids.account).value.trim();
-    postData.userPassword = passwordMd5;
-    postData.userPasswordSalt = salt;
+    postData.userPassword = this.Form.get(Ids.password).value.trim();
 
     this.http.post<number>(url, postData, this.httpOptions).subscribe(
       (result) => {
@@ -104,7 +102,7 @@ export class SignupComponent implements OnInit {
           keepAfterRouteChange: true,
         };
         this.alertService.success('註冊成功', options);
-        this.router.navigate(['..', this.path.home]);
+        this.router.navigate(['..', this.path.login]);
       },
       (error) => {
         const options = {
@@ -117,19 +115,19 @@ export class SignupComponent implements OnInit {
     );
   }
 
-  /**
-   * 取得密碼加密salt
-   */
-  createSalt() {
-    const possible =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890,./;'[]=-|}{)(*&^%$#@!?~`";
-    const lengthOfCode = 8;
-    let text = '';
-    for (let i = 0; i < lengthOfCode; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-  }
+  // /**
+  //  * 取得密碼加密salt
+  //  */
+  // createSalt() {
+  //   const possible =
+  //     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890,./;'[]=-|}{)(*&^%$#@!?~`";
+  //   const lengthOfCode = 8;
+  //   let text = '';
+  //   for (let i = 0; i < lengthOfCode; i++) {
+  //     text += possible.charAt(Math.floor(Math.random() * possible.length));
+  //   }
+  //   return text;
+  // }
 
   setFocus(name) {
     const ele = this.formElementRef.nativeElement[name];

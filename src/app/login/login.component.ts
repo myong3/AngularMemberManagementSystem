@@ -6,8 +6,8 @@ import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { AlertService } from '../_alert';
 import { Router } from '@angular/router';
 import {
-  GetPasswordModel,
-  GetPasswordReturnModel,
+  LogInRepsonseModel,
+  LogInRequestModel,
 } from './login.component.models';
 import { Ids } from '../signup/signup.component.ids';
 
@@ -25,6 +25,7 @@ export class LoginComponent implements OnInit {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
     }),
+    withCredentials: true,
   };
   Form: FormGroup;
 
@@ -50,6 +51,12 @@ export class LoginComponent implements OnInit {
       account: ['', [Validators.required, Validators.minLength(4)]],
       password: ['', Validators.required],
     });
+
+    const token = sessionStorage.getItem('access_token');
+
+    if (token !== undefined && token !== null) {
+      this.router.navigate([this.path.home]);
+    }
   }
 
   get account() {
@@ -64,23 +71,31 @@ export class LoginComponent implements OnInit {
     if (!this.Form.valid) {
       return;
     }
-    const url = this.baseUrl + 'api/login/GetPassword';
-    const postData = new GetPasswordModel(this.Form.get(Ids.account).value);
+
+    const url = this.baseUrl + 'api/login/LogInGetToken';
+    const postData = new LogInRequestModel();
+
+    postData.userAccount = this.Form.get(Ids.account).value;
+    postData.userPassword = this.Form.get(Ids.password).value;
 
     this.http
-      .post<GetPasswordReturnModel>(url, postData, this.httpOptions)
+      .post<LogInRepsonseModel>(url, postData, this.httpOptions)
       .subscribe(
         (result) => {
-          console.log('result', result);
-
-          if (result.userPassword !== null) {
-            this.comparePassword(result);
+          if (result.isSuccessLogIn === true) {
+            sessionStorage.setItem('access_token', result.access_token);
+            const options = {
+              autoClose: true,
+              keepAfterRouteChange: true,
+            };
+            this.alertService.success('登入成功', options);
+            this.router.navigate(['..', this.path.home]);
           } else {
             const options = {
               autoClose: true,
               keepAfterRouteChange: true,
             };
-            this.alertService.error('找不到您的帳戶，請再嘗試一次', options);
+            this.alertService.error(result.message, options);
           }
         },
         (error) => {
@@ -92,30 +107,6 @@ export class LoginComponent implements OnInit {
           this.alertService.error('登入失敗，請再嘗試一次', options);
         }
       );
-  }
-
-  comparePassword(model: GetPasswordReturnModel) {
-    const password = this.Form.get(Ids.password).value;
-    const passwordWithSalt = model.userPasswordSalt + password;
-    const passwordMd5 = Md5.hashStr(passwordWithSalt).toString();
-
-    console.log('password', password);
-    console.log('passwordWithSalt', passwordWithSalt);
-    console.log('passwordMd5', passwordMd5);
-    if (passwordMd5 === model.userPassword) {
-      const options = {
-        autoClose: true,
-        keepAfterRouteChange: true,
-      };
-      this.alertService.success('登入成功', options);
-      this.router.navigate(['..', this.path.home]);
-    } else {
-      const options = {
-        autoClose: true,
-        keepAfterRouteChange: true,
-      };
-      this.alertService.error('密碼錯誤', options);
-    }
   }
 
   setFocus(name) {

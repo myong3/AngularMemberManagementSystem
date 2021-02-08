@@ -15,7 +15,6 @@ export class checkAccountModel {
 export class signUpModel {
   userAccount: string;
   userPassword: string;
-  userPasswordSalt: string;
 
   constructor() {}
 }

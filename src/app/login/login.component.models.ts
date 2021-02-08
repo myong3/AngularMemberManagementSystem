@@ -1,20 +1,14 @@
-export interface formDataModel {
-  account: string;
-  password: string;
-}
-
-export class GetPasswordModel {
+export class LogInRequestModel {
   userAccount: string;
+  userPassword: string;
 
-  constructor(account) {
-    this.userAccount = account;
-  }
+  constructor() {}
 }
 
-export class GetPasswordReturnModel {
-  userPassword: string;
-  userPasswordSalt: string;
+export class LogInRepsonseModel {
+  isSuccessLogIn: boolean;
+  message: string;
+  access_token: string;
 
-  constructor() {
-  }
+  constructor() {}
 }
