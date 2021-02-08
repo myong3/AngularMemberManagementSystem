@@ -23,14 +23,16 @@
               <button
                 type="button"
                 class="btn btn-primary"
-                (click)="open('focusFirst', item)"
+                (click)="openEditModal(item)"
+                *ngIf="decodeToken.sub === item.userAccount || !item.userPolicy"
               >
                 編輯
               </button>
               <button
                 type="button"
                 class="btn btn-danger"
-                (click)="open('autofocus', item)"
+                (click)="openComfirmModal(item)"
+                *ngIf="decodeToken.sub !== item.userAccount && !item.userPolicy"
               >
                 刪除
               </button>

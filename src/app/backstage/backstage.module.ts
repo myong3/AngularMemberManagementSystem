@@ -1,19 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BackstageRoutingModule } from './backstage-routing.module';
 import {
   BackstageComponent,
-  NgbdModalConfirm,
-  NgbdModalConfirmAutofocus,
+  comfirmModal,
+  editModal
 } from './backstage.component';
 @NgModule({
-  declarations: [BackstageComponent, NgbdModalConfirm, NgbdModalConfirmAutofocus],
+  declarations: [BackstageComponent, editModal, comfirmModal],
   imports: [
     CommonModule,
     BackstageRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule
   ],
-  entryComponents: [NgbdModalConfirm, NgbdModalConfirmAutofocus],
+  entryComponents: [, editModal, comfirmModal],
 })
 export class BackstageModule {}
