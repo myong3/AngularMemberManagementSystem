@@ -1,4 +1,11 @@
-export class UserRepsonseModel {
+export class UserResponseViewModel {
+  userList: Array<UserResponseModel>;
+  refreshToken: string;
+
+  constructor() {}
+}
+
+export class UserResponseModel {
   userId: number;
   userAccount: string;
   userPassword: string;
@@ -6,7 +13,6 @@ export class UserRepsonseModel {
   userPolicy: string;
   createTime: Date;
   updateTime: Date;
-  refreshToken: string;
 
   constructor() {}
 }
@@ -27,14 +33,5 @@ export class UpdateModel {
   userPolicy: string;
   createTime: Date;
   updateTime: Date;
-  constructor(data) {
-    this.userId = data.userId;
-    this.userAccount = data.userAccount;
-    this.userPassword = data.userPassword;
-    this.userPasswordSalt = data.userPasswordSalt;
-    this.userPolicy = data.userPolicy;
-    this.createTime = data.createTime;
-    this.updateTime = data.updateTime;
-
-  }
+  constructor() {}
 }

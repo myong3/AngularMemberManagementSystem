@@ -7,7 +7,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AlertModule } from './_alert';
 import { JwtModule } from '@auth0/angular-jwt';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 export function tokenGetter(){
   return sessionStorage.getItem('access_token');
  }
@@ -27,6 +27,7 @@ export function tokenGetter(){
       },
     }),
     FormsModule,
+    ReactiveFormsModule,
     NgbModule
   ],
   providers: [],

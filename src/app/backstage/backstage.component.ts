@@ -7,6 +7,7 @@ import {
   Type,
   ViewChild,
 } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import {
@@ -18,7 +19,8 @@ import { appPath } from '../app-path.const';
 import {
   DeleteModel,
   UpdateModel,
-  UserRepsonseModel,
+  UserResponseModel,
+  UserResponseViewModel,
 } from './backstage.component.models';
 @Component({
   selector: 'app-backstage',
@@ -35,7 +37,7 @@ export class BackstageComponent implements OnInit {
     }),
     withCredentials: true,
   };
-  listData: Array<UserRepsonseModel>; // 會員資料
+  listData: Array<UserResponseModel>; // 會員資料
 
   @ViewChild('form') formElementRef: ElementRef;
 
@@ -60,11 +62,11 @@ export class BackstageComponent implements OnInit {
 
     const url = this.baseUrl + 'api/crud';
 
-    this.http.get<Array<UserRepsonseModel>>(url, this.httpOptions).subscribe(
+    this.http.get<UserResponseViewModel>(url, this.httpOptions).subscribe(
       (result) => {
-        this.listData = result;
-        if (result[0].refreshToken !== '') {
-          sessionStorage.setItem('access_token', result[0].refreshToken);
+        this.listData = result.userList;
+        if (result.refreshToken !== '') {
+          sessionStorage.setItem('access_token', result.refreshToken);
           this.DecodeTokenFuntcion();
         }
       },
@@ -74,7 +76,7 @@ export class BackstageComponent implements OnInit {
     );
   }
 
-  openComfirmModal(data: UserRepsonseModel) {
+  openComfirmModal(data: UserResponseModel) {
     const modalRef = this.modalService.open(MODALS['comfirmModal']);
     modalRef.componentInstance.item = data;
     modalRef.result.then(
@@ -83,13 +85,14 @@ export class BackstageComponent implements OnInit {
         const postData = new DeleteModel(data.userId);
 
         this.http
-          .post<Array<UserRepsonseModel>>(url, postData, this.httpOptions)
+          .post<UserResponseViewModel>(url, postData, this.httpOptions)
           .subscribe(
             (result) => {
-              this.listData = result;
+              this.listData = result.userList;
+console.log('result',result);
 
-              if (result[0].refreshToken !== '') {
-                sessionStorage.setItem('access_token', result[0].refreshToken);
+              if (result.refreshToken !== '') {
+                sessionStorage.setItem('access_token', result.refreshToken);
                 this.DecodeTokenFuntcion();
               }
             },
@@ -109,18 +112,25 @@ export class BackstageComponent implements OnInit {
     modalRef.componentInstance.item = data;
     modalRef.result.then(
       (result) => {
-        console.log('result', result);
         const url = this.baseUrl + 'api/crud/UpdateProfile';
-        const postData = new UpdateModel(result);
+
+        const postData = new UpdateModel();
+        postData.userId = result.get('userId').value;
+        postData.userAccount = result.get('userAccount').value;
+        postData.userPassword = result.get('userPassword').value;
+        postData.userPasswordSalt = result.get('userPasswordSalt').value;
+        postData.userPolicy = result.get('userPolicy').value;
+        postData.createTime = result.get('createTime').value;
+        postData.updateTime = result.get('updateTime').value;
 
         this.http
-          .post<Array<UserRepsonseModel>>(url, postData, this.httpOptions)
+          .post<UserResponseViewModel>(url, postData, this.httpOptions)
           .subscribe(
             (result) => {
-              this.listData = result;
+              this.listData = result.userList;
 
-              if (result[0].refreshToken !== '') {
-                sessionStorage.setItem('access_token', result[0].refreshToken);
+              if (result.refreshToken !== '') {
+                sessionStorage.setItem('access_token', result.refreshToken);
                 this.DecodeTokenFuntcion();
               }
             },
@@ -130,22 +140,7 @@ export class BackstageComponent implements OnInit {
           );
       },
       (reason) => {
-        const url = this.baseUrl + 'api/crud';
-
-        this.http
-          .get<Array<UserRepsonseModel>>(url, this.httpOptions)
-          .subscribe(
-            (result) => {
-              this.listData = result;
-              if (result[0].refreshToken !== '') {
-                sessionStorage.setItem('access_token', result[0].refreshToken);
-                this.DecodeTokenFuntcion();
-              }
-            },
-            (error) => {
-              console.log(error);
-            }
-          );
+        console.log('reason', reason);
       }
     );
   }
@@ -216,15 +211,14 @@ export class BackstageComponent implements OnInit {
   `,
 })
 export class comfirmModal {
-  @Input() item: UserRepsonseModel;
+  @Input() item: UserResponseModel;
 
   constructor(public modal: NgbActiveModal) {}
 }
 
 @Component({
   selector: 'edit-modal',
-  template: `
-    <div class="modal-header">
+  template: `<div class="modal-header">
       <h4 class="modal-title" id="modal-title">Edit</h4>
       <button
         type="button"
@@ -236,119 +230,148 @@ export class comfirmModal {
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
-    <div class="modal-body">
-      <div>
+    <form
+      focusInvalidInput
+      [formGroup]="Form"
+      #NgForm="ngForm"
+      #form
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="modal-body">
         <div>
-          <div class="row">
-            <div class="col-4">
-              <strong>User Id :</strong>
+          <div
+            class="cross-validation"
+            [class.cross-validation-error]="
+              Form.errors?.identityRevealed && (Form.touched || Form.dirty)
+            "
+          >
+            <div class="row">
+              <div class="col-4">
+                <strong>User Id :</strong>
+              </div>
+              <div class="col-auto">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="userId"
+                  onfocus="this.select()"
+                  required
+                />
+              </div>
             </div>
-            <div class="col-auto">
-              <input
-                type="text"
-                class="form-control"
-                [(ngModel)]="userData.userId"
-                onfocus="this.select()"
-                disabled="true"
-                required
-              />
+            <div class="row mt-3">
+              <div class="col-4">
+                <strong>User Account :</strong>
+              </div>
+              <div class="col-auto">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="userAccount"
+                  onfocus="this.select()"
+                  required
+                />
+              </div>
             </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-4">
-              <strong>User Account :</strong>
+            <div class="row mt-3">
+              <div class="col-4">
+                <strong>User Password :</strong>
+              </div>
+              <div class="col-auto">
+                <input
+                  type="password"
+                  class="form-control"
+                  formControlName="userPassword"
+                  onfocus="this.select()"
+                  required
+                />
+              </div>
             </div>
-            <div class="col-auto">
-              <input
-                type="text"
-                class="form-control"
-                [(ngModel)]="userData.userAccount"
-                onfocus="this.select()"
-                disabled="true"
-                required
-              />
+            <div class="row mt-3">
+              <div class="col-4">
+                <strong>User Policy :</strong>
+              </div>
+              <div class="col-auto">
+                <input type="checkbox" formControlName="userPolicy" />
+              </div>
             </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-4">
-              <strong>User Password :</strong>
+            <div class="row mt-3">
+              <div class="col-4">
+                <strong>Create Time :</strong>
+              </div>
+              <div class="col-auto">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="createTime"
+                />
+              </div>
             </div>
-            <div class="col-auto">
-              <input
-                type="password"
-                class="form-control"
-                [(ngModel)]="userData.userPassword"
-                onfocus="this.select()"
-                disabled="true"
-                required
-              />
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-4">
-              <strong>User Policy :</strong>
-            </div>
-            <div class="col-auto">
-              <input type="checkbox" [(ngModel)]="userData.userPolicy" />
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-4">
-              <strong>Create Time :</strong>
-            </div>
-            <div class="col-auto">
-              <input
-                type="text"
-                class="form-control"
-                [(ngModel)]="userData.createTime"
-                disabled="true"
-              />
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-4">
-              <strong>Update Time :</strong>
-            </div>
-            <div class="col-auto">
-              <input
-                type="text"
-                class="form-control"
-                [(ngModel)]="userData.updateTime"
-                disabled="true"
-              />
+            <div class="row mt-3">
+              <div class="col-4">
+                <strong>Update Time :</strong>
+              </div>
+              <div class="col-auto">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="updateTime"
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="modal-footer">
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        (click)="modal.dismiss()"
-      >
-        Cancel
-      </button>
-      <button
-        type="button"
-        ngbAutofocus
-        class="btn btn-danger"
-        (click)="modal.close(item)"
-      >
-        Ok
-      </button>
-    </div>
-  `,
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="modal.dismiss()"
+        >
+          Cancel
+        </button>
+        <button type="sumbit" ngbAutofocus class="btn btn-danger">Ok</button>
+      </div>
+    </form>`,
 })
 export class editModal implements OnInit {
-  @Input() item: UserRepsonseModel;
+  @Input() item: UserResponseModel;
+  Form: FormGroup;
 
-  userData: UserRepsonseModel;
-
-  constructor(public modal: NgbActiveModal) {}
+  constructor(public modal: NgbActiveModal, private formBuilder: FormBuilder) {}
   ngOnInit(): void {
-    this.userData = this.item;
+    this.Form = this.formBuilder.group({
+      userId: [
+        { value: this.item.userId, disabled: true },
+        [Validators.required],
+      ],
+      userAccount: [
+        { value: this.item.userAccount, disabled: true },
+        Validators.required,
+      ],
+      userPassword: [
+        { value: this.item.userPassword, disabled: true },
+        Validators.required,
+      ],
+      userPasswordSalt: [this.item.userPasswordSalt],
+      userPolicy: [this.item.userPolicy],
+      createTime: [
+        { value: this.item.createTime, disabled: true },
+        Validators.required,
+      ],
+      updateTime: [
+        { value: this.item.updateTime, disabled: true },
+        Validators.required,
+      ],
+    });
+  }
+
+  onSubmit() {
+    if (!this.Form.valid) {
+      return;
+    }
+    this.modal.close(this.Form);
   }
 }
 

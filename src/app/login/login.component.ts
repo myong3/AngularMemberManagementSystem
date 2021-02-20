@@ -82,6 +82,7 @@ export class LoginComponent implements OnInit {
       .post<LogInRepsonseModel>(url, postData, this.httpOptions)
       .subscribe(
         (result) => {
+
           if (result.isSuccessLogIn === true) {
             sessionStorage.setItem('access_token', result.access_token);
             const options = {

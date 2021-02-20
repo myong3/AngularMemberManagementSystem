@@ -7,14 +7,15 @@ import {
   comfirmModal,
   editModal
 } from './backstage.component';
+import { FocusInvalidInputDirective } from './focusInvalidInput.directive';
 @NgModule({
-  declarations: [BackstageComponent, editModal, comfirmModal],
+  declarations: [BackstageComponent, editModal, comfirmModal, FocusInvalidInputDirective],
   imports: [
     CommonModule,
     BackstageRoutingModule,
     ReactiveFormsModule,
     FormsModule
   ],
-  entryComponents: [, editModal, comfirmModal],
+  entryComponents: [editModal, comfirmModal],
 })
 export class BackstageModule {}
